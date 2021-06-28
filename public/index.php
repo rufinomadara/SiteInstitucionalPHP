@@ -1,6 +1,6 @@
 <?php
 
-require __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../bootstrap.php';
 
 //use Code\Contoller\pageController;
 
@@ -14,11 +14,19 @@ $url = explode('/', $url);
 
 //se "url" existi a casa 0 ele pega a propria casa 0 e se ja existi um valor ele mostra a prórpia page, senão existi coloca default "page"
 $controller = isset($url[0]) && $url[0] ? $url[0] : 'page';
-$action     = isset($url[0]) && $url[0] ? $url[0] : 'index';
+$action     = isset($url[1]) && $url[1] ? $url[1] : 'index';
+$param      = isset($url[2]) && $url[2] ? $url[2] : null;
 
 //concatena o que ta sendo passado com o sufixo "controller"
-$controller = "Code\Controller\\". ucfirst($controller).'Controller';
 
+if(!class_exists($controller = "Code\Controller\\". ucfirst($controller).'Controller')){
+  die("404 - Página não encontrada...");
+}
+
+if(!method_exists($controller, $action)){
+  $action = 'index';
+  $param = $url[1];
+}
 
 
 //var_dump($url);
@@ -27,7 +35,7 @@ $controller = "Code\Controller\\". ucfirst($controller).'Controller';
 
 
 //função que executa qualquer função ou método
-$response = call_user_func_array([new $controller, $action], []);
+$response = call_user_func_array([new $controller, $action], [$param]);
 
 print $response;
 
